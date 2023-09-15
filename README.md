@@ -27,7 +27,7 @@ has_many :orders
 | condition_id  | integer    | null: false                    |
 | fee_id        | integer    | null: false                    |
 | prefecture_id | integer    | null: false                    |
-| ship_day_id  | integer    | null: false                    |
+| ship_day_id   | integer    | null: false                    |
 | user          | references | null: false, foreign_key: true |
 
 
