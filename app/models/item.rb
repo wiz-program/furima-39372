@@ -10,9 +10,20 @@ class Item < ApplicationRecord
   belongs_to :user
   has_one_attached :image
 
-  validates :price, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 300, less_than_or_equal_to: 9_999_999, message: "must be 300 ~ 9,999,999 and half width" }, format: { with: /\A[0-9]+\z/ }
-  validates :name, presence: true, length: {maximum: 40}
-  validates :content, presence: true, length: {maximum: 1000}
-  validates :image, presence: true 
-  validates :category_id, :condition_id, :fee_id, :prefecture_id, :ship_day_id, numericality: { other_than: 0 , message: "can't be blank" } 
+  with_options presence: true do
+    validates :image
+    validates :name, length: {maximum: 40}
+    validates :content, length: {maximum: 1000}
+    validates :category_id
+    validates :condition_id
+    validates :fee_id
+    validates :prefecture_id
+    validates :ship_day_id
+  end
+
+  with_options presence: true, format: {with: /\A[0-9]+\z/} do
+    validates :price, numericality: {only_integer: true, greater_than_or_equal_to: 300, less_than_or_equal_to: 9_999_999}
+  end
+  
+
 end
