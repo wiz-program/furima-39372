@@ -3,11 +3,11 @@ FactoryBot.define do
     name          {Faker::Lorem.characters(number: 6, min_alpha: 1, min_numeric: 1) }
     price         {Faker::Number.between(from: 300, to: 9999999)}
     content       {Faker::Lorem.characters(number: 6, min_alpha: 1, min_numeric: 1) }
-    category      {Category.all.sample}
-    condition     {Condition.all.sample}
-    fee           {Fee.all.sample}
-    prefecture    {Prefecture.all.sample}
-    ship_day      {ShipDay.all.sample}
+    category_id   {1}
+    condition_id  {1}
+    fee_id        {1}
+    prefecture_id {1}
+    ship_day_id   {1}
     
     association :user
     after(:build) do |item|

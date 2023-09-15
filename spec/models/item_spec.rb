@@ -41,34 +41,34 @@ RSpec.describe Item, type: :model do
         expect(@item.errors.full_messages).to include("Content is too long (maximum is 1000 characters)")
       end
       it 'カテゴリーの情報がないと出品できない' do
-        @item.category = nil
+        @item.category_id = 0
         @item.valid?
-        expect(@item.errors.full_messages).to include("Category can't be blank")
+        expect(@item.errors.full_messages).to include("Category must be other than 0")
       end
       it '商品の状態の情報がないと出品できない' do
-        @item.condition = nil
+        @item.condition_id = 0
         @item.valid?
-        expect(@item.errors.full_messages).to include("Condition can't be blank")
+        expect(@item.errors.full_messages).to include("Condition must be other than 0")
       end
       it '配送料の負担の情報がないと出品できない' do
-        @item.fee = nil
+        @item.fee_id = 0
         @item.valid?
-        expect(@item.errors.full_messages).to include("Fee can't be blank")
+        expect(@item.errors.full_messages).to include("Fee must be other than 0")
       end
       it '発送元の地域の情報がないと出品できない' do
-        @item.prefecture = nil
+        @item.prefecture_id = 0
         @item.valid?
-        expect(@item.errors.full_messages).to include("Prefecture can't be blank")
+        expect(@item.errors.full_messages).to include("Prefecture must be other than 0")
       end
       it '発送までの日数の情報がないと出品できない' do
-        @item.ship_day = nil
+        @item.ship_day_id = 0
         @item.valid?
-        expect(@item.errors.full_messages).to include("Ship day can't be blank")
+        expect(@item.errors.full_messages).to include("Ship day must be other than 0")
       end
       it '価格の情報がないと出品できない' do
         @item.price = nil
         @item.valid?
-        expect(@item.errors.full_messages).to include("Price can't be blank")
+        expect(@item.errors.full_messages).to include("Price can't be blank", "Price is invalid", "Price is not a number")
       end
       it '価格が300円以下では出品できない' do
         @item.price = 255
