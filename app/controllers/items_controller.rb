@@ -1,6 +1,8 @@
 class ItemsController < ApplicationController
 
   before_action :authenticate_user!, only: [:new, :edit, :update]
+  befire_action :set_item, only: [:show, :edit, :update]
+  before_action :comfirm_user, only: [:edit, :update]
 
   def index
     @items = Item.all.order("created_at DESC")
@@ -20,18 +22,14 @@ class ItemsController < ApplicationController
   end
 
   def show
-    @item = Item.find(params[:id])
+    
   end
 
   def edit
-    @item = Item.find(params[:id])
-    unless @item.user_id == current_user.id
-      redirect_to root_path
-    end
   end
 
   # def destroy
-    # @item = Item.find(params[:id])
+    # @item = Item.find(params[:id])あとでset_itemに追加
     # unless @item.user_id == current_user.id
     #   redirect_to root_path
     # end
@@ -41,10 +39,6 @@ class ItemsController < ApplicationController
   # end
 
   def update
-    @item = Item.find(params[:id])
-    unless @item.user_id == current_user.id
-      redirect_to root_path
-    end
     if @item.update(item_params)
     redirect_to item_path(params[:id])
     else
@@ -56,6 +50,16 @@ class ItemsController < ApplicationController
 
   def item_params
     params.require(:item).permit(:name, :price, :content, :category_id, :condition_id, :fee_id, :prefecture_id, :ship_day_id, :image).merge(user_id: current_user.id)
+  end
+
+  def set_item
+    @item = Item.find(params[:id])
+  end
+
+  def comfirm_user
+    unless @item.user_id == current_user.id
+      redirect_to root_path
+    end
   end
   
 end
