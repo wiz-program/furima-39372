@@ -24,14 +24,14 @@ class ItemsController < ApplicationController
     @item = Item.find(params[:id])
   end
 
-  def edit
+  # def edit
     # @item = Item.find(params[:id])
     # unless @item.user_id == current_user.id
     #   redirect_to root_path
     # end
-  end
+  # end
 
-  def destroy
+  # def destroy
     # @item = Item.find(params[:id])
     # unless @item.user_id == current_user.id
     #   redirect_to root_path
@@ -39,9 +39,9 @@ class ItemsController < ApplicationController
     # @item.destroy
     # redirect_to root_path
 
-  end
+  # end
 
-  def update
+  # def update
     # @item = Item.find(params[:id])
     # unless @item.user_id == current_user.id
     #   redirect_to root_path
@@ -51,7 +51,7 @@ class ItemsController < ApplicationController
     # else
     #   render :edit
     # end
-  end
+  # end
 
   private
 
