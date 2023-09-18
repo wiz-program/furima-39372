@@ -3,6 +3,7 @@ class ItemsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :edit, :update, :destroy]
   before_action :set_item, only: [:show, :edit, :update, :destroy]
   before_action :comfirm_user, only: [:edit, :update, :destroy]
+  before_action :comfirm_sold_out?, only: :edit
 
   def index
     @items = Item.all.order("created_at DESC")
@@ -56,5 +57,10 @@ class ItemsController < ApplicationController
       redirect_to root_path
     end
   end
-  
+
+  def comfirm_sold_out?
+    if @item.order.present?
+      redirect_to root_path
+    end
+  end
 end
