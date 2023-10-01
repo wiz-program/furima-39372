@@ -12,7 +12,7 @@ class User < ApplicationRecord
          KATAKANA_REGEX = /\A[ァ-ヶー－]+\z/
 
 
-         validates :password, format: { with: VALID_PASSWORD_REGEX, message: "は半角英数字で入力してください"}
+         validates :password, format: { with: VALID_PASSWORD_REGEX, message: "は半角英数字で入力してください"}, if: :password_required?
          
          validates :nickname, presence: true
          validates :last_name, presence: true, format: { with: VALID_NAME_REGEX, message: 'は全角で入力してください' }
