@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update]
+  before_action :comfirm_user, only: [:edit, :update, :destroy]
   def show
     @items = @user.items
   end
@@ -23,5 +24,11 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:nickname, :email)
+  end
+
+  def comfirm_user
+    unless @user.id == current_user.id
+      redirect_to root_path
+    end
   end
 end
