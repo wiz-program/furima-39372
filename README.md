@@ -25,7 +25,7 @@ https://furima-39372.onrender.com
 | DB（本番） | PostgreSQL（Neon） |
 | フロント | JavaScript / Webpacker |
 | ホスティング | Render |
-| 画像ストレージ | Active Storage / AWS S3 |
+| 画像ストレージ | Active Storage / Cloudflare R2（本番） |
 | 認証 | Devise |
 | 決済 | PayJP |
 | テスト | RSpec |
@@ -87,9 +87,10 @@ https://furima-39372.onrender.com
 
 ## 環境変数
 
-### ローカル開発
+秘密の値（キーや URL）は **Git に含めず**、環境変数として渡します。  
+`config/storage.yml` は変数名の参照だけを書き、実際の値は各環境で設定します。
 
-`~/.zshrc` に以下の環境変数を設定しています。
+### ローカル開発（`~/.zshrc`）
 
 ```bash
 # Basic認証
@@ -99,10 +100,6 @@ export BASIC_AUTH_PASSWORD=2222
 # PayJP（決済）
 export PAYJP_PUBLIC_KEY=pk_test_xxxxxxxx
 export PAYJP_SECRET_KEY=sk_test_xxxxxxxx
-
-# AWS S3（画像アップロード）
-export AWS_ACCESS_KEY_ID=xxxxxxxx
-export AWS_SECRET_ACCESS_KEY=xxxxxxxx
 ```
 
 設定後、反映するためにターミナルを再起動するか、以下を実行してください。
@@ -111,25 +108,51 @@ export AWS_SECRET_ACCESS_KEY=xxxxxxxx
 source ~/.zshrc
 ```
 
-| 変数名 | 用途 |
-|--------|------|
-| `BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD` | アプリ全体の Basic 認証 |
-| `PAYJP_PUBLIC_KEY` / `PAYJP_SECRET_KEY` | クレジットカード決済（PayJP ダッシュボードから取得） |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | 商品画像の S3 アップロード |
+| 変数名 | 用途 | `config/` での参照先 |
+|--------|------|----------------------|
+| `BASIC_AUTH_USER` | Basic 認証の ID | `application_controller.rb` |
+| `BASIC_AUTH_PASSWORD` | Basic 認証のパスワード | `application_controller.rb` |
+| `PAYJP_PUBLIC_KEY` | 決済（公開キー） | `config/initializers/webpacker.rb` |
+| `PAYJP_SECRET_KEY` | 決済（秘密キー） | `app/models/order_address.rb` |
 
-### 本番（Render）
+ローカルの商品画像は `config/storage.yml` の `local` 設定により、プロジェクト内の `storage/` フォルダに保存されます。**R2 用の環境変数はローカルでは不要**です。
 
-Render の Environment に以下を設定します。
+### 本番（Render の Environment）
 
-| 変数名 | 用途 |
-|--------|------|
-| `RAILS_ENV` | `production` |
-| `RAILS_MASTER_KEY` | `config/master.key` の内容 |
-| `RAILS_SERVE_STATIC_FILES` | `true` |
-| `DATABASE_URL` | Neon の PostgreSQL 接続 URL |
-| `BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD` | Basic 認証 |
-| `PAYJP_PUBLIC_KEY` / `PAYJP_SECRET_KEY` | 決済 |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | 画像アップロード（S3） |
+#### 画像ストレージ（Cloudflare R2）
+
+`config/storage.yml` の `r2` ブロック（`config/environments/production.rb` で `:r2` を指定）が参照する変数です。
+
+| 環境変数名 | Cloudflare R2 での対応 | `storage.yml` での用途 |
+|------------|------------------------|-------------------------|
+| `AWS_ACCESS_KEY_ID` | アクセスキー ID | `access_key_id` |
+| `AWS_SECRET_ACCESS_KEY` | シークレットアクセスキー | `secret_access_key` |
+| `R2_BUCKET_NAME` | バケット名 | `bucket` |
+| `R2_ENDPOINT` | S3 クライアントのエンドポイント | `endpoint` |
+
+※ `AWS_*` という名前ですが、中身は R2 のキーです（S3 互換 API のため）。  
+※ `region: auto` と `force_path_style: true` は `storage.yml` に直書きしており、環境変数は不要です。
+
+#### その他の本番用変数
+
+| 変数名 | 用途 | `config/` での参照先 |
+|--------|------|----------------------|
+| `RAILS_ENV` | `production` | Rails 全体 |
+| `RAILS_MASTER_KEY` | 認証情報の復号 | `config/credentials.yml.enc` |
+| `RAILS_SERVE_STATIC_FILES` | `true`（CSS/JS 配信） | `config/environments/production.rb` |
+| `DATABASE_URL` | Neon の PostgreSQL 接続 URL | `config/database.yml` |
+| `BASIC_AUTH_USER` | Basic 認証の ID | `application_controller.rb` |
+| `BASIC_AUTH_PASSWORD` | Basic 認証のパスワード | `application_controller.rb` |
+| `PAYJP_PUBLIC_KEY` | 決済（公開キー） | `config/initializers/webpacker.rb` |
+| `PAYJP_SECRET_KEY` | 決済（秘密キー） | `app/models/order_address.rb` |
+
+### 環境ごとの画像保存先
+
+| 環境 | Active Storage の設定 | 保存先 |
+|------|----------------------|--------|
+| ローカル（development） | `:local` | プロジェクト内 `storage/` |
+| 本番（production） | `:r2` | Cloudflare R2 |
+| テスト（test） | `:test` | `tmp/storage/` |
 
 ## ローカル環境での起動
 
@@ -155,8 +178,10 @@ http://localhost:3000 にアクセスしてください。Basic 認証は `~/.zs
 
 ```
 GitHub → Render（Web サービス）
-              ├─ DATABASE_URL → Neon（PostgreSQL）
-              └─ AWS キー     → S3（商品画像）
+              ├─ DATABASE_URL      → Neon（PostgreSQL）
+              ├─ AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+              ├─ R2_BUCKET_NAME / R2_ENDPOINT → Cloudflare R2（商品画像）
+              └─ PAYJP_* / BASIC_AUTH_* など
 ```
 
 | 項目 | 設定値 |
