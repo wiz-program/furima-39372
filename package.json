@@ -1,6 +1,9 @@
 {
   "name": "furima_39372",
   "private": true,
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "dependencies": {
     "@rails/actioncable": "^6.1.0",
     "@rails/activestorage": "^6.1.0",

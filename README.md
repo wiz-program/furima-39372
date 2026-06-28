@@ -161,6 +161,7 @@ GitHub → Render（Web サービス）
 
 | 項目 | 設定値 |
 |------|--------|
+| Node.js | 20.19.0（`.node-version` で指定） |
 | Build Command | `./bin/render-build.sh` |
 | Start Command | `bundle exec puma -C config/puma.rb` |
 
