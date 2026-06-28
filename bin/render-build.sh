@@ -3,6 +3,8 @@
 set -o errexit
 
 export RAILS_ENV=production
+# Webpack 4（Webpacker 5）は Node 17+ の OpenSSL 3 と非互換
+export NODE_OPTIONS=--openssl-legacy-provider
 
 bundle install
 yarn install
